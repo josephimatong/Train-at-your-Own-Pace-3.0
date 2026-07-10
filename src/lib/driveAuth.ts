@@ -11,7 +11,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
-  updatePassword
+  updatePassword,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { auth, googleAuthProvider as provider } from './firebase.ts';
 
@@ -89,13 +90,20 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
  */
 export const emailSignIn = async (email: string, password: string): Promise<User> => {
   const trimmedEmail = email.trim();
+  if (!trimmedEmail.toLowerCase().endsWith('@weehur.com.sg')) {
+    throw new Error('Access Denied: Only members of the @weehur.com.sg community are authorized.');
+  }
   try {
     const result = await signInWithEmailAndPassword(auth, trimmedEmail, password);
     return result.user;
   } catch (error: any) {
     if (error && (error.code === 'auth/operation-not-allowed' || error.message?.includes('operation-not-allowed'))) {
       throw new Error(
-        "Please use the 'Connect Google Account' button below to log in with your corporate email."
+        "Email/Password authentication is disabled in your Firebase project. To enable it:\n" +
+        "1. Go to Firebase Console: https://console.firebase.google.com/project/gen-lang-client-0509544687/authentication/providers\n" +
+        "2. Click 'Add new provider' and select 'Email/Password'.\n" +
+        "3. Enable the 'Email/Password' switch and save the changes.\n" +
+        "Alternatively, please log in using your Google account via 'Connect Corporate Google Account'."
       );
     }
     throw error;
@@ -107,6 +115,9 @@ export const emailSignIn = async (email: string, password: string): Promise<User
  */
 export const emailRegister = async (email: string, password: string, displayName: string): Promise<User> => {
   const trimmedEmail = email.trim();
+  if (!trimmedEmail.toLowerCase().endsWith('@weehur.com.sg')) {
+    throw new Error('Access Denied: Only members of the @weehur.com.sg community can register.');
+  }
   if (!displayName.trim()) {
     throw new Error('Name is required.');
   }
@@ -117,8 +128,33 @@ export const emailRegister = async (email: string, password: string, displayName
   } catch (error: any) {
     if (error && (error.code === 'auth/operation-not-allowed' || error.message?.includes('operation-not-allowed'))) {
       throw new Error(
-        "Please use the 'Connect Google Account' button below to log in. Registration is automatic for corporate accounts."
+        "Email/Password authentication is disabled in your Firebase project. To register accounts via email:\n" +
+        "1. Go to Firebase Console: https://console.firebase.google.com/project/gen-lang-client-0509544687/authentication/providers\n" +
+        "2. Click 'Add new provider' and select 'Email/Password'.\n" +
+        "3. Enable the 'Email/Password' switch and save the changes.\n" +
+        "Alternatively, please log in using your Google account via 'Connect Corporate Google Account'."
       );
+    }
+    throw error;
+  }
+};
+
+/**
+ * Initiates a password reset email flow
+ */
+export const resetPassword = async (email: string): Promise<void> => {
+  const trimmedEmail = email.trim();
+  if (!trimmedEmail) {
+    throw new Error('Email is required.');
+  }
+  if (!trimmedEmail.toLowerCase().endsWith('@weehur.com.sg')) {
+    throw new Error('Access Denied: Only members of the @weehur.com.sg community can reset passwords.');
+  }
+  try {
+    await sendPasswordResetEmail(auth, trimmedEmail);
+  } catch (error: any) {
+    if (error && (error.code === 'auth/operation-not-allowed' || error.message?.includes('operation-not-allowed'))) {
+      throw new Error("Email/Password authentication is disabled in your Firebase project.");
     }
     throw error;
   }
