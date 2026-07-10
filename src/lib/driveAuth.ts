@@ -86,11 +86,7 @@ export const emailSignIn = async (email: string, password: string): Promise<User
   } catch (error: any) {
     if (error && (error.code === 'auth/operation-not-allowed' || error.message?.includes('operation-not-allowed'))) {
       throw new Error(
-        "Email/Password authentication is disabled in your Firebase project. To enable it:\n" +
-        "1. Go to Firebase Console: https://console.firebase.google.com/project/gen-lang-client-0509544687/authentication/providers\n" +
-        "2. Click 'Add new provider' and select 'Email/Password'.\n" +
-        "3. Enable the 'Email/Password' switch and save the changes.\n" +
-        "Alternatively, please log in using your Google account via 'Connect Corporate Google Account'."
+        "Please use the 'Connect Google Account' button below to log in with your corporate email."
       );
     }
     throw error;
@@ -112,11 +108,7 @@ export const emailRegister = async (email: string, password: string, displayName
   } catch (error: any) {
     if (error && (error.code === 'auth/operation-not-allowed' || error.message?.includes('operation-not-allowed'))) {
       throw new Error(
-        "Email/Password authentication is disabled in your Firebase project. To register accounts via email:\n" +
-        "1. Go to Firebase Console: https://console.firebase.google.com/project/gen-lang-client-0509544687/authentication/providers\n" +
-        "2. Click 'Add new provider' and select 'Email/Password'.\n" +
-        "3. Enable the 'Email/Password' switch and save the changes.\n" +
-        "Alternatively, please log in using your Google account via 'Connect Corporate Google Account'."
+        "Please use the 'Connect Google Account' button below to log in. Registration is automatic for corporate accounts."
       );
     }
     throw error;

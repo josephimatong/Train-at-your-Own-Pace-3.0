@@ -1018,9 +1018,9 @@ export default function App() {
               <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-4 text-[11px] text-red-400 leading-relaxed space-y-2">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
-                  <div className="font-bold text-red-300">Firebase Setup Required</div>
+                  <div className="font-bold text-red-300">Authentication Notice</div>
                 </div>
-                <div className="whitespace-pre-line font-mono text-[10px] text-slate-300 leading-normal pl-6">
+                <div className="whitespace-pre-line font-medium text-[11px] text-slate-300 leading-normal pl-6">
                   {authErrorMessage}
                 </div>
               </div>
