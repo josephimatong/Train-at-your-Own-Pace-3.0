@@ -294,6 +294,9 @@ export const updateUserAccountDetails = async (
     try {
       await updatePassword(currentUser, newPassword.trim());
     } catch (error: any) {
+      if (error && (error.code === 'auth/requires-recent-login' || error.message?.includes('requires-recent-login'))) {
+        throw new Error('For security reasons, please sign out and sign in again before changing your password.');
+      }
       if (error && (error.code === 'auth/operation-not-allowed' || error.message?.includes('operation-not-allowed'))) {
         throw new Error(
           "Email/Password authentication is disabled in your Firebase project. To enable password updating:\n" +

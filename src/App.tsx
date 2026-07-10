@@ -271,18 +271,22 @@ export default function App() {
       // 1. Update Firebase Auth name and/or password
       await updateUserAccountDetails(profileName, profilePassword);
 
-      // 2. Save user to Firestore
+      // 2. Fetch the current Firestore profile to retain their accessibility role
+      const profile = await getUserProfile(driveUser.uid);
+      const accessibilityRole = profile?.role || (driveUser.email === 'josephimatong@weehur.com.sg' ? 'super_admin' : 'employee');
+
+      // 3. Save user to Firestore
       const currentEntry = leaderboard.find(l => l.email === driveUser.email || l.uid === driveUser.uid);
       await saveUserToFirestore({
         uid: driveUser.uid,
         email: driveUser.email || '',
         displayName: profileName,
-        role: currentRole, // retain current role
+        role: accessibilityRole, // Keep actual role from db
         project: profileProject,
         weeHurRole: profileWeeHurRole,
-        xp: currentEntry?.xp || 0,
-        completions: currentEntry?.completions || 0,
-        badges: currentEntry?.badges || []
+        xp: currentEntry?.xp || profile?.xp || 0,
+        completions: currentEntry?.completions || profile?.completions || 0,
+        badges: currentEntry?.badges || profile?.badges || []
       });
 
       triggerToast('Your safety profile and credentials have been updated successfully!', 'success');

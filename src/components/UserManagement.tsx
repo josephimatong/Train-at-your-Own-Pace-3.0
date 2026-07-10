@@ -947,10 +947,11 @@ export const UserManagement: React.FC<UserManagementProps> = ({
               </div>
 
               {/* Accessibility Rights Options */}
-              <div className="space-y-2">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
-                  Accessibility Rights Tier
-                </label>
+              {currentRole === UserRole.SUPER_ADMIN && (
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+                    Accessibility Rights Tier
+                  </label>
                 <div className="grid grid-cols-2 gap-2">
                   {/* Employee */}
                   <label className={`border rounded-lg p-2.5 flex items-start gap-2 cursor-pointer transition-all ${
@@ -1033,6 +1034,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                   </label>
                 </div>
               </div>
+              )}
 
               {/* Action Buttons */}
               <div className="pt-4 flex items-center justify-end gap-2.5">
