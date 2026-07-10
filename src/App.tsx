@@ -495,7 +495,12 @@ export default function App() {
         setLeaderboard(sorted);
       }
     } catch (error) {
-      console.error('Failed to refresh users list:', error);
+      const errStr = error instanceof Error ? error.message : String(error);
+      if (errStr.toLowerCase().includes('offline')) {
+        console.warn('Running offline: skipping user list refresh.');
+      } else {
+        console.error('Failed to refresh users list:', error);
+      }
     }
   };
 
@@ -642,7 +647,12 @@ export default function App() {
             triggerToast('Collaborative notes synchronized with central database.', 'success');
           })
           .catch((err) => {
-            console.error('Firestore save failed, buffering note offline:', err);
+            const errStr = err instanceof Error ? err.message : String(err);
+            if (errStr.toLowerCase().includes('offline')) {
+              console.warn('Running offline: buffering note offline.');
+            } else {
+              console.error('Firestore save failed, buffering note offline:', err);
+            }
             setSyncQueue((prev) => [...prev, { type: 'note', payload: { id, text } }]);
             triggerToast('Cloud sync failed; note saved to offline sync buffer.', 'warning');
           });
@@ -780,7 +790,12 @@ export default function App() {
           }
           log('All offline buffer items successfully synchronized to Cloud Firestore!');
         } catch (err) {
-          console.error('Failed to sync offline queue with Firestore:', err);
+          const errStr = err instanceof Error ? err.message : String(err);
+          if (errStr.toLowerCase().includes('offline')) {
+            console.warn('Running offline: skipping sync offline queue with Firestore.');
+          } else {
+            console.error('Failed to sync offline queue with Firestore:', err);
+          }
           log('Warning: Some items failed to sync to Firestore.');
         }
       }

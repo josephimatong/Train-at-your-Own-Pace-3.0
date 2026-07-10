@@ -155,7 +155,12 @@ export const UserManagement: React.FC<UserManagementProps> = ({
           setWeeHurRoles(loadedRoles);
         }
       } catch (err) {
-        console.error('Error loading dynamic configuration from Firestore:', err);
+        const errStr = err instanceof Error ? err.message : String(err);
+        if (errStr.toLowerCase().includes('offline')) {
+          console.warn('Running offline: skipping dynamic configuration load.');
+        } else {
+          console.error('Error loading dynamic configuration from Firestore:', err);
+        }
       }
     }
     loadConfig();
@@ -375,7 +380,12 @@ export const UserManagement: React.FC<UserManagementProps> = ({
       setShowModal(false);
       await onRefreshUsers();
     } catch (err) {
-      console.error('Error saving user profile to Firestore:', err);
+      const errStr = err instanceof Error ? err.message : String(err);
+      if (errStr.toLowerCase().includes('offline')) {
+        console.warn('Running offline: fallback to local user profile update.');
+      } else {
+        console.error('Error saving user profile to Firestore:', err);
+      }
       // Fallback: update locally
       if (setLeaderboard) {
         setLeaderboard(prev => {
@@ -407,7 +417,12 @@ export const UserManagement: React.FC<UserManagementProps> = ({
         triggerToast(`User "${name}" has been deleted from Firestore.`, 'success');
         await onRefreshUsers();
       } catch (err) {
-        console.error('Error deleting user profile:', err);
+        const errStr = err instanceof Error ? err.message : String(err);
+        if (errStr.toLowerCase().includes('offline')) {
+          console.warn('Running offline: fallback to local user deletion.');
+        } else {
+          console.error('Error deleting user profile:', err);
+        }
         if (setLeaderboard) {
           setLeaderboard(prev => {
             const updatedList = prev.filter(u => u.uid !== uid);
