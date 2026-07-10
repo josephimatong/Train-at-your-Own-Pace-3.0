@@ -112,8 +112,12 @@ export const CloudStorageSync: React.FC<CloudStorageSyncProps> = ({
       const files = await listDriveFiles(query);
       setDriveFiles(files);
     } catch (err: any) {
-      setExplorerError('Failed to retrieve files from Google Drive. Ensure scopes are approved.');
-      console.error(err);
+      if (err.message && err.message.includes('expired or invalid')) {
+        setExplorerError('Google Drive session expired. Please sign in again.');
+      } else {
+        setExplorerError('Failed to retrieve files from Google Drive. Ensure scopes are approved.');
+        console.error(err);
+      }
     } finally {
       setIsLoadingFiles(false);
     }

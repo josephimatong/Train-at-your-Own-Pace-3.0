@@ -58,15 +58,6 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
     isSigningIn = true;
     const result = await signInWithPopup(auth, provider);
     
-    // Strict domain check for Google Sign-In
-    const email = result.user.email || '';
-    if (!email.toLowerCase().endsWith('@weehur.com.sg')) {
-      await auth.signOut();
-      cachedAccessToken = null;
-      sessionStorage.removeItem('weehur_drive_token');
-      throw new Error('Access Denied: Only members of the @weehur.com.sg community are authorized.');
-    }
-
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (!credential?.accessToken) {
       throw new Error('Failed to get access token from Firebase Auth');
@@ -89,9 +80,6 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
  */
 export const emailSignIn = async (email: string, password: string): Promise<User> => {
   const trimmedEmail = email.trim();
-  if (!trimmedEmail.toLowerCase().endsWith('@weehur.com.sg')) {
-    throw new Error('Access Denied: Only members of the @weehur.com.sg community are authorized.');
-  }
   try {
     const result = await signInWithEmailAndPassword(auth, trimmedEmail, password);
     return result.user;
@@ -114,9 +102,6 @@ export const emailSignIn = async (email: string, password: string): Promise<User
  */
 export const emailRegister = async (email: string, password: string, displayName: string): Promise<User> => {
   const trimmedEmail = email.trim();
-  if (!trimmedEmail.toLowerCase().endsWith('@weehur.com.sg')) {
-    throw new Error('Access Denied: Only members of the @weehur.com.sg community can register.');
-  }
   if (!displayName.trim()) {
     throw new Error('Name is required.');
   }
@@ -184,7 +169,11 @@ export const listDriveFiles = async (query?: string): Promise<any[]> => {
     const data = await res.json();
     return data.files || [];
   } catch (err: any) {
-    console.error('Failed to retrieve Google Drive files:', err.message);
+    if (err.message && err.message.includes('expired or invalid')) {
+      console.warn('Google Drive access expired or invalid. Token cleared.');
+    } else {
+      console.error('Failed to retrieve Google Drive files:', err.message);
+    }
     throw err;
   }
 };

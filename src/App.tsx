@@ -1013,14 +1013,6 @@ export default function App() {
               </button>
             </div>
 
-            {/* Warning Info */}
-            <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3 text-[11px] text-amber-400/90 leading-relaxed flex items-start gap-2 font-medium">
-              <Terminal className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>
-                <strong>Security Alert:</strong> This application is accessible only to members of the <strong>weehur.com.sg</strong> community.
-              </span>
-            </div>
-
             {/* Firebase Auth Error Alert block */}
             {authErrorMessage && (
               <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-4 text-[11px] text-red-400 leading-relaxed space-y-2">
@@ -1060,7 +1052,7 @@ export default function App() {
 
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
-                  Corporate Email
+                  Email Address
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
@@ -1069,7 +1061,7 @@ export default function App() {
                     required
                     value={authEmail}
                     onChange={(e) => setAuthEmail(e.target.value)}
-                    placeholder="e.g. ramesh@weehur.com.sg"
+                    placeholder="e.g. you@example.com"
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
                   />
                 </div>
@@ -1127,7 +1119,7 @@ export default function App() {
                   d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.53-8 7.859-8c2.46 0 4.105 1.025 5.047 1.926l3.245-3.125C18.29 1.49 15.45 0 12.24 0 5.58 0 0 5.37 0 12s5.58 12 12.24 12c6.96 0 11.57-4.89 11.57-11.79 0-.795-.085-1.4-.185-1.925H12.24z"
                 />
               </svg>
-              <span>Connect Corporate Google Account</span>
+              <span>Connect Google Account</span>
             </button>
           </div>
         </div>

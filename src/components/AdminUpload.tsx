@@ -243,8 +243,12 @@ export const AdminUpload: React.FC<AdminUploadProps> = ({
     try {
       const files = await listDriveFiles(query);
       setDriveFiles(files);
-    } catch (err) {
-      console.error('Failed to load drive files in AdminUpload', err);
+    } catch (err: any) {
+      if (err.message && err.message.includes('expired or invalid')) {
+        console.warn('AdminUpload: Google Drive access expired.');
+      } else {
+        console.error('Failed to load drive files in AdminUpload', err);
+      }
     } finally {
       setIsSearchingDrive(false);
     }
