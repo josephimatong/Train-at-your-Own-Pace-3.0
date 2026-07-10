@@ -58,6 +58,15 @@ export const googleSignIn = async (): Promise<{ user: User; accessToken: string 
     isSigningIn = true;
     const result = await signInWithPopup(auth, provider);
     
+    // Strict domain check for Google Sign-In
+    const email = result.user.email || '';
+    if (!email.toLowerCase().endsWith('@weehur.com.sg')) {
+      await auth.signOut();
+      cachedAccessToken = null;
+      sessionStorage.removeItem('weehur_drive_token');
+      throw new Error('Access Denied: Only members of the @weehur.com.sg community are authorized.');
+    }
+
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (!credential?.accessToken) {
       throw new Error('Failed to get access token from Firebase Auth');

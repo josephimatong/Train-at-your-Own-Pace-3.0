@@ -126,12 +126,6 @@ export default function App() {
   }, [leaderboard]);
 
   // Secure Authentication States
-  const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
-  const [authEmail, setAuthEmail] = useState('');
-  const [authPassword, setAuthPassword] = useState('');
-  const [authName, setAuthName] = useState('');
-  const [authLoading, setAuthLoading] = useState(false);
-
   // Video and Quiz active progress maps for module cards
   const [videoProgressMap, setVideoProgressMap] = useState<Record<string, number>>(() => {
     try {
@@ -533,53 +527,6 @@ export default function App() {
     }
   };
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!authEmail.trim() || !authPassword) {
-      triggerToast('Please provide both email and password.', 'warning');
-      return;
-    }
-    setAuthLoading(true);
-    setAuthErrorMessage(null);
-    try {
-      const user = await emailSignIn(authEmail, authPassword);
-      setDriveUser(user);
-      triggerToast('Signed in successfully!', 'success');
-      setAuthEmail('');
-      setAuthPassword('');
-    } catch (err: any) {
-      console.error(err);
-      setAuthErrorMessage(err.message || 'Incorrect corporate credentials.');
-      triggerToast(err.message || 'Incorrect corporate credentials.', 'warning');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleEmailRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!authEmail.trim() || !authPassword || !authName.trim()) {
-      triggerToast('Please fill out all fields.', 'warning');
-      return;
-    }
-    setAuthLoading(true);
-    setAuthErrorMessage(null);
-    try {
-      const user = await emailRegister(authEmail, authPassword, authName);
-      setDriveUser(user);
-      triggerToast('Account created successfully!', 'success');
-      setAuthEmail('');
-      setAuthPassword('');
-      setAuthName('');
-    } catch (err: any) {
-      console.error(err);
-      setAuthErrorMessage(err.message || 'Failed to register account.');
-      triggerToast(err.message || 'Failed to register account.', 'warning');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
   const t = TRANSLATIONS[currentLanguage];
 
   // Auto load/save offline state
@@ -977,42 +924,6 @@ export default function App() {
               </p>
             </div>
 
-            {/* Custom Tab Switcher */}
-            <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800/80">
-              <button
-                onClick={() => {
-                  setAuthTab('login');
-                  setAuthEmail('');
-                  setAuthPassword('');
-                  setAuthName('');
-                  setAuthErrorMessage(null);
-                }}
-                className={`flex-1 text-center py-2 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                  authTab === 'login'
-                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => {
-                  setAuthTab('register');
-                  setAuthEmail('');
-                  setAuthPassword('');
-                  setAuthName('');
-                  setAuthErrorMessage(null);
-                }}
-                className={`flex-1 text-center py-2 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                  authTab === 'register'
-                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Create Account
-              </button>
-            </div>
-
             {/* Firebase Auth Error Alert block */}
             {authErrorMessage && (
               <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-4 text-[11px] text-red-400 leading-relaxed space-y-2">
@@ -1026,101 +937,22 @@ export default function App() {
               </div>
             )}
 
-            {/* Form */}
-            <form
-              onSubmit={authTab === 'login' ? handleEmailSignIn : handleEmailRegister}
-              className="space-y-4"
-            >
-              {authTab === 'register' && (
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                    <input
-                      type="text"
-                      required
-                      value={authName}
-                      onChange={(e) => setAuthName(e.target.value)}
-                      placeholder="e.g. Ramesh Kumar"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                  <input
-                    type="email"
-                    required
-                    value={authEmail}
-                    onChange={(e) => setAuthEmail(e.target.value)}
-                    placeholder="e.g. you@example.com"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                  <input
-                    type="password"
-                    required
-                    value={authPassword}
-                    onChange={(e) => setAuthPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={authLoading}
-                className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:from-slate-800 disabled:to-slate-800 text-white font-bold text-xs py-3 rounded-lg shadow-lg shadow-cyan-500/10 cursor-pointer flex items-center justify-center gap-2 transition-all"
-              >
-                {authLoading ? (
-                  <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                ) : (
-                  <span>{authTab === 'login' ? 'Sign In to Dashboard' : 'Register Account'}</span>
-                )}
-              </button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative py-2">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-800" />
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase font-mono">
-                <span className="bg-slate-900 px-2.5 text-slate-500">Or Continue With</span>
-              </div>
-            </div>
-
             {/* Google Sign In option */}
-            <button
-              onClick={handleDriveLogin}
-              className="w-full bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-200 font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              {/* Google G Vector Icon */}
-              <svg className="w-4 h-4 mr-1 shrink-0" viewBox="0 0 24 24">
-                <path
-                  fill="#EA4335"
-                  d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.53-8 7.859-8c2.46 0 4.105 1.025 5.047 1.926l3.245-3.125C18.29 1.49 15.45 0 12.24 0 5.58 0 0 5.37 0 12s5.58 12 12.24 12c6.96 0 11.57-4.89 11.57-11.79 0-.795-.085-1.4-.185-1.925H12.24z"
-                />
-              </svg>
-              <span>Connect Google Account</span>
-            </button>
+            <div className="pt-2">
+              <button
+                onClick={handleDriveLogin}
+                className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs py-3 rounded-lg flex items-center justify-center gap-3 transition-all cursor-pointer shadow-lg shadow-cyan-500/10"
+              >
+                {/* Google G Vector Icon */}
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                  <path
+                    fill="#ffffff"
+                    d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.53-8 7.859-8c2.46 0 4.105 1.025 5.047 1.926l3.245-3.125C18.29 1.49 15.45 0 12.24 0 5.58 0 0 5.37 0 12s5.58 12 12.24 12c6.96 0 11.57-4.89 11.57-11.79 0-.795-.085-1.4-.185-1.925H12.24z"
+                  />
+                </svg>
+                <span className="text-sm">Sign In with Google</span>
+              </button>
+            </div>
           </div>
         </div>
       ) : (
