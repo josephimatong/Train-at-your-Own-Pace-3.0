@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Wee Hur Training Hub",
+  "description": "Self-paced professional development and safety training hub for Wee Hur employees with offline access, real-time collaboration, manager analytics, and gamified leaderboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

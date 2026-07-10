@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;650;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Calibri", "Candara", "Segoe UI", "Optima", "Arial", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Classic Light Theme Variables Override */
+.theme-light {
+  --color-slate-950: #f8fafc; /* Soft off-white canvas */
+  --color-slate-900: #ffffff; /* Crisp white card background */
+  --color-slate-850: #f1f5f9; /* Sub-card background */
+  --color-slate-800: #cbd5e1; /* Secondary border/input background */
+  --color-slate-750: #e2e8f0; /* Muted borders */
+  --color-slate-700: #94a3b8; /* Focused borders */
+  --color-slate-650: #cbd5e1;
+  --color-slate-600: #64748b; /* Inactive tabs / labels */
+  --color-slate-500: #475569; /* Slate gray placeholder/help text */
+  --color-slate-400: #334155; /* Normal secondary copy */
+  --color-slate-300: #1e293b; /* Secondary headings & readable text */
+  --color-slate-200: #0f172a; /* Main body text & subtitles */
+  --color-slate-100: #020617; /* Primary headings & heavy titles */
+}
+
+/* Force Default Slate Dark colors on specific elements (like certificates or custom overlays) */
+.keep-default-colors {
+  --color-slate-950: #020617;
+  --color-slate-900: #0f172a;
+  --color-slate-850: #1e293b;
+  --color-slate-800: #334155;
+  --color-slate-750: #1e293b;
+  --color-slate-700: #475569;
+  --color-slate-650: #475569;
+  --color-slate-600: #64748b;
+  --color-slate-500: #94a3b8;
+  --color-slate-400: #cbd5e1;
+  --color-slate-300: #e2e8f0;
+  --color-slate-200: #f1f5f9;
+  --color-slate-100: #f8fafc;
+}
+

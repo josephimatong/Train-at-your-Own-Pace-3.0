@@ -1,0 +1,103 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with gamified metrics and achievements",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The unique Firebase Authentication UID" },
+        "email": { "type": "string", "description": "The email of the user" },
+        "role": { "type": "string", "enum": ["employee", "manager", "admin", "super_admin"] },
+        "project": { "type": "string", "description": "The assigned construction project site" },
+        "weeHurRole": { "type": "string", "description": "The user's role or job title at Wee Hur" },
+        "xp": { "type": "number", "description": "Total experience points earned" },
+        "completions": { "type": "number", "description": "Number of completed modules" },
+        "badges": { "type": "array", "description": "List of unlocked badges" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "Collaborative study notes for a specific training tutorial",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique note ID (tutorialId_userId)" },
+        "tutorialId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "content": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "tutorialId", "userId", "content"]
+    },
+    "TutorialCompletion": {
+      "title": "TutorialCompletion",
+      "description": "Tracking user completion of tutorials and quizzes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier (userId_tutorialId)" },
+        "userId": { "type": "string" },
+        "tutorialId": { "type": "string" },
+        "isCompleted": { "type": "boolean" },
+        "quizPassed": { "type": "boolean" },
+        "quizScore": { "type": "number" },
+        "completedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "tutorialId", "isCompleted"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app notification for achievements and system alerts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "time": { "type": "string" },
+        "read": { "type": "boolean" },
+        "type": { "type": "string", "enum": ["achievement", "alert", "system"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "message", "read", "type"]
+    },
+    "AppConfig": {
+      "title": "AppConfig",
+      "description": "Customizable lists of project sites and job roles",
+      "type": "object",
+      "properties": {
+        "sites": {
+          "type": "array",
+          "description": "List of active construction sites"
+        },
+        "roles": {
+          "type": "array",
+          "description": "List of employee job titles"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Stores user profile and learning metrics"
+    },
+    "notes/{noteId}": {
+      "schema": "Note",
+      "description": "Stores user study notes indexed by combination of tutorial and user UIDs"
+    },
+    "completions/{completionId}": {
+      "schema": "TutorialCompletion",
+      "description": "Stores completion records and quiz grades for verification"
+    },
+    "notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Stores individual compliance notifications and alerts"
+    },
+    "app_config/{configId}": {
+      "schema": "AppConfig",
+      "description": "Stores general app configuration dropdown values editable by admins"
+    }
+  }
+}

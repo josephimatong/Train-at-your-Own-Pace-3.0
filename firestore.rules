@@ -1,0 +1,150 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Catch-All Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Core Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Entity Validation Blueprints ---
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role'])
+        && data.uid is string && data.uid.size() <= 128
+        && data.email is string && data.email.size() <= 256
+        && data.role is string && (data.role == 'employee' || data.role == 'manager' || data.role == 'admin' || data.role == 'super_admin')
+        && (!data.keys().contains('project') || (data.project is string && data.project.size() <= 256))
+        && (!data.keys().contains('weeHurRole') || (data.weeHurRole is string && data.weeHurRole.size() <= 256))
+        && (!data.keys().contains('xp') || (data.xp is number && data.xp >= 0))
+        && (!data.keys().contains('completions') || (data.completions is number && data.completions >= 0))
+        && (!data.keys().contains('badges') || data.badges is list);
+    }
+
+    function isValidNote(data) {
+      return data.keys().hasAll(['id', 'tutorialId', 'userId', 'content'])
+        && data.id is string && data.id.size() <= 128
+        && data.tutorialId is string && data.tutorialId.size() <= 64
+        && data.userId is string && data.userId.size() <= 128
+        && data.content is string && data.content.size() <= 50000
+        && (!data.keys().contains('userEmail') || (data.userEmail is string && data.userEmail.size() <= 256));
+    }
+
+    function isValidCompletion(data) {
+      return data.keys().hasAll(['id', 'userId', 'tutorialId', 'isCompleted'])
+        && data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId.size() <= 128
+        && data.tutorialId is string && data.tutorialId.size() <= 64
+        && data.isCompleted is bool
+        && (!data.keys().contains('quizPassed') || data.quizPassed is bool)
+        && (!data.keys().contains('quizScore') || (data.quizScore is number && data.quizScore >= 0 && data.quizScore <= 100));
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'message', 'read', 'type'])
+        && data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId.size() <= 128
+        && data.title is string && data.title.size() <= 256
+        && data.message is string && data.message.size() <= 1000
+        && data.read is bool
+        && data.type is string && (data.type == 'deadline' || data.type == 'achievement' || data.type == 'sync' || data.type == 'alert');
+    }
+
+    // --- Rules for Collections ---
+
+    // 1. Users profiles
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId);
+      // For leaderboard display, users must be able to list/query profiles
+      allow list: if isSignedIn();
+      allow create: if (isOwner(userId) || (isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin'])) 
+        && isValidUser(incoming());
+      // On update, user cannot modify their immutable role (unless owner is the super admin email, or requester is admin/super_admin)
+      allow update: if ((isOwner(userId) && (incoming().role == existing().role || incoming().email == 'josephimatong@weehur.com.sg') && incoming().uid == existing().uid) || (isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin']))
+        && isValidUser(incoming());
+      allow delete: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin'];
+    }
+
+    // 2. Collaborative study notes
+    match /notes/{noteId} {
+      allow get: if isSignedIn() && isValidId(noteId);
+      // Shared study logs - allowed to list for active collaborations
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() 
+        && isValidId(noteId)
+        && incoming().userId == request.auth.uid 
+        && isValidNote(incoming());
+      allow update: if isSignedIn() 
+        && isValidId(noteId)
+        && existing().userId == request.auth.uid 
+        && incoming().userId == request.auth.uid 
+        && isValidNote(incoming());
+      allow delete: if isSignedIn() 
+        && isValidId(noteId)
+        && existing().userId == request.auth.uid;
+    }
+
+    // 3. Tutorial / Quiz Completions
+    match /completions/{completionId} {
+      allow get: if isSignedIn() && isValidId(completionId);
+      // Employees list their own, managers/admins list all completions
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['manager', 'admin']);
+      allow create: if isSignedIn() 
+        && isValidId(completionId)
+        && incoming().userId == request.auth.uid 
+        && isValidCompletion(incoming());
+      allow update: if isSignedIn() 
+        && isValidId(completionId)
+        && existing().userId == request.auth.uid 
+        && incoming().userId == request.auth.uid 
+        && isValidCompletion(incoming());
+      allow delete: if false;
+    }
+
+    // 4. Compliance Notifications
+    match /notifications/{notificationId} {
+      allow get: if isSignedIn() && isValidId(notificationId);
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() 
+        && isValidId(notificationId)
+        && incoming().userId == request.auth.uid 
+        && isValidNotification(incoming());
+      allow update: if isSignedIn() 
+        && isValidId(notificationId)
+        && existing().userId == request.auth.uid 
+        && incoming().userId == request.auth.uid 
+        && isValidNotification(incoming());
+      allow delete: if isSignedIn() 
+        && isValidId(notificationId)
+        && existing().userId == request.auth.uid;
+    }
+
+    // 5. App Configuration (project sites & job roles)
+    match /app_config/{configId} {
+      allow read: if true;
+      allow write: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin'];
+    }
+
+  }
+}
