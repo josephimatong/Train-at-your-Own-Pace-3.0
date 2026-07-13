@@ -291,6 +291,7 @@ export default function App() {
 
       triggerToast('Your safety profile and credentials have been updated successfully!', 'success');
       setIsProfileModalOpen(false);
+      setDriveUser({ ...driveUser, displayName: profileName });
       // Refresh the leaderboard list
       await refreshUsersList();
     } catch (err: any) {
@@ -1579,7 +1580,7 @@ export default function App() {
                 currentLanguage={currentLanguage}
                 currentRole={currentRole}
                 leaderboard={leaderboard}
-                currentUserEmail={driveUser?.email || "josephimatong@weehur.com.sg"}
+                currentUserEmail={driveUser?.email || ""}
                 onRefreshUsers={refreshUsersList}
                 triggerToast={triggerToast}
                 setSimulatedRole={setRole}

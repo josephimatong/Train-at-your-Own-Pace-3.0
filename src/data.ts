@@ -197,7 +197,7 @@ export const INITIAL_LEADERBOARD: LeaderboardEntry[] = [
   { rank: 1, name: 'Tan Teck Meng', role: 'Safety Coordinator', site: 'Woodlands BTO Project', xp: 2150, badges: ['⚡ Safety Champ', '🏆 Perfectionist', '💡 Mentor'], completions: 12 },
   { rank: 2, name: 'Siti Aminah', role: 'Site Engineer', site: 'Punggol PPVC Site', xp: 1980, badges: ['🏗️ Prefab Master', '📊 QA Guru'], completions: 10 },
   { rank: 3, name: 'Ramesh Kumar', role: 'Tower Crane Operator', site: 'Woodlands BTO Project', xp: 1820, badges: ['🏗️ Safe Lift', '⏱️ Punctual'], completions: 9 },
-  { rank: 4, name: 'Joseph Imatong', role: 'Structural Supervisor', site: 'Kovan Residential', xp: 1450, badges: ['🔥 Fast Learner', '📋 Inspector'], completions: 7, isCurrentUser: true },
+  { rank: 4, name: 'Joseph Imatong', role: 'Structural Supervisor', site: 'Kovan Residential', xp: 1450, badges: ['🔥 Fast Learner', '📋 Inspector'], completions: 7 },
   { rank: 5, name: 'Lim Wei Jie', role: 'Site Supervisor', site: 'Punggol PPVC Site', xp: 1210, badges: ['🛡️ Safe Start'], completions: 6 },
   { rank: 6, name: 'Ahmad Fauzi', role: 'WSHO Officer', site: 'Kovan Residential', xp: 1100, badges: ['📋 Compliance'], completions: 5 },
   { rank: 7, name: 'Sanjay Pillay', role: 'Safety Assistant', site: 'Woodlands BTO Project', xp: 950, badges: ['💡 Greenhorn'], completions: 4 }

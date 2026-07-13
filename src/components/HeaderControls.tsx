@@ -44,15 +44,17 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const getWelcomeMessage = () => {
+    const defaultName = driveUser?.displayName || driveUser?.email?.split('@')[0] || "Employee";
+
     switch (currentRole) {
       case UserRole.SUPER_ADMIN:
-        return t.superAdminWelcome;
+        return `${t.superAdminWelcome} - ${defaultName}`;
       case UserRole.ADMIN:
-        return t.adminWelcome;
+        return `${t.adminWelcome} - ${defaultName}`;
       case UserRole.MANAGER:
-        return t.managerWelcome;
+        return `${t.managerWelcome} - ${defaultName}`;
       default:
-        return t.welcomeUser;
+        return `${t.welcomeUser}, ${defaultName}`;
     }
   };
 
@@ -105,7 +107,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
               <div>
                 <p className="font-semibold leading-tight">{getWelcomeMessage()}</p>
                 <p className="text-[9px] text-slate-500 font-mono truncate max-w-[150px]">
-                  {driveUser?.email || "josephimatong@weehur.com.sg"}
+                  {driveUser?.email || "Not Connected"}
                 </p>
               </div>
               <button
@@ -228,7 +230,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
                 <div>
                   <span className="text-xs font-semibold text-slate-300 block">{getWelcomeMessage()}</span>
                   <span className="text-[10px] text-slate-500 font-mono block">
-                    {driveUser?.email || "josephimatong@weehur.com.sg"}
+                    {driveUser?.email || "Not Connected"}
                   </span>
                 </div>
               </div>
