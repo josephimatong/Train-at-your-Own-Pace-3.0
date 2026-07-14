@@ -231,7 +231,7 @@ export const INITIAL_NOTIFICATIONS: InAppNotification[] = [
 ];
 
 export const INITIAL_CLOUD_CONFIGS: CloudStorageConfig[] = [
-  { id: 'cloud-1', service: 'Google Drive', connected: true, accountEmail: 'corporate-drive@weehur.com.sg', lastSync: '2026-07-07 09:12' },
+  { id: 'cloud-1', service: 'Google Drive', connected: true, accountEmail: 'corporateinfo.cons@weehur.com.sg', lastSync: '2026-07-07 09:12' },
   { id: 'cloud-2', service: 'OneDrive', connected: false },
   { id: 'cloud-3', service: 'AWS S3', connected: true, accountEmail: 's3://weehur-learning-bucket', lastSync: '2026-07-06 18:30' }
 ];

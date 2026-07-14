@@ -180,10 +180,16 @@ export const listDriveFiles = async (query?: string): Promise<any[]> => {
     return [];
   }
 
-  let url = 'https://www.googleapis.com/drive/v3/files?pageSize=12&fields=files(id,name,mimeType,size,createdTime,thumbnailLink,webContentLink,webViewLink)&q=trashed=false';
+  let q = "trashed=false and 'corporateinfo.cons@weehur.com.sg' in owners";
   if (query) {
-    url += ` and name contains '${query.replace(/'/g, "\\'")}'`;
+    q += ` and name contains '${query.replace(/'/g, "\\'")}'`;
   }
+  const params = new URLSearchParams({
+    pageSize: '12',
+    fields: 'files(id,name,mimeType,size,createdTime,thumbnailLink,webContentLink,webViewLink)',
+    q: q
+  });
+  const url = `https://www.googleapis.com/drive/v3/files?${params.toString()}`;
 
   try {
     const res = await fetch(url, {

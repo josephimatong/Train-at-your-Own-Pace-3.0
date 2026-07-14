@@ -298,7 +298,7 @@ export const CloudStorageSync: React.FC<CloudStorageSyncProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FolderOpen className="w-4 h-4 text-cyan-400" />
-                <h4 className="text-sm font-black text-slate-200 tracking-tight">Google Drive File Explorer</h4>
+                <h4 className="text-sm font-black text-slate-200 tracking-tight">Corporate Knowledge Base Explorer</h4>
               </div>
               <button 
                 onClick={() => fetchFiles()}
@@ -316,7 +316,7 @@ export const CloudStorageSync: React.FC<CloudStorageSyncProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search files in Google Drive..."
+                placeholder="Search official company manuals in Google Drive..."
                 className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-16 py-1.5 text-xs text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 font-medium"
               />
               <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />

@@ -67,7 +67,7 @@ async function startServer() {
           
           if (latestUserMessage.length > 2) {
              const searchResponse = await drive.files.list({
-                q: "mimeType='text/plain' or mimeType='application/vnd.google-apps.document'",
+                q: "(mimeType='text/plain' or mimeType='application/vnd.google-apps.document') and 'corporateinfo.cons@weehur.com.sg' in owners",
                 pageSize: 3,
                 fields: 'files(id, name, mimeType)',
                 orderBy: 'modifiedTime desc'
