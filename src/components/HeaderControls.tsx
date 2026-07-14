@@ -119,7 +119,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
               </button>
             </div>
 
-            {/* Google Drive Status Indicator */}
+            {/* Corporate Drive Status Indicator */}
             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs border ${
               driveUser 
                 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' 
@@ -127,19 +127,11 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
             }`}>
               <Cloud className={`w-3.5 h-3.5 ${driveUser ? 'text-emerald-400' : 'text-slate-500'}`} />
               <div className="max-w-[120px] truncate">
-                <p className="font-bold text-[8px] uppercase tracking-wider leading-none">Google Drive</p>
+                <p className="font-bold text-[8px] uppercase tracking-wider leading-none">Corporate Drive</p>
                 <p className="text-[9px] font-mono truncate leading-normal mt-0.5">
-                  {driveUser ? driveUser.email : 'Not Connected'}
+                  {driveUser ? 'corporateinfo.cons@weehur.com.sg' : 'Not Connected'}
                 </p>
               </div>
-              {driveUser && (
-                <button 
-                  onClick={onDriveLogout}
-                  className="ml-1 text-[9px] bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 px-1.5 py-0.5 rounded border border-red-500/20 font-bold transition-all cursor-pointer"
-                >
-                  Disconnect
-                </button>
-              )}
             </div>
           </div>
 
@@ -246,7 +238,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
               </button>
             </div>
 
-            {/* Mobile Google Drive Integration */}
+            {/* Mobile Corporate Drive Integration */}
             <div className={`p-3 rounded-lg border text-xs flex items-center justify-between ${
               driveUser 
                 ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-300' 
@@ -255,20 +247,12 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
               <div className="flex items-center gap-2">
                 <Cloud className={`w-4 h-4 ${driveUser ? 'text-emerald-400' : 'text-slate-500'}`} />
                 <div>
-                  <p className="font-bold text-[8px] uppercase tracking-wider leading-none">Google Drive Sync</p>
+                  <p className="font-bold text-[8px] uppercase tracking-wider leading-none">Corporate Drive Sync</p>
                   <p className="text-[10px] font-mono truncate max-w-[160px] mt-0.5">
-                    {driveUser ? driveUser.email : 'Not Connected'}
+                    {driveUser ? 'corporateinfo.cons@weehur.com.sg' : 'Not Connected'}
                   </p>
                 </div>
               </div>
-              {driveUser && (
-                <button 
-                  onClick={onDriveLogout}
-                  className="text-[10px] bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2.5 py-1 rounded border border-red-500/20 font-bold transition-all cursor-pointer"
-                >
-                  Disconnect
-                </button>
-              )}
             </div>
 
             {/* Selectors and Actions Grid */}

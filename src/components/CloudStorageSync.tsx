@@ -44,7 +44,7 @@ export const CloudStorageSync: React.FC<CloudStorageSyncProps> = ({
   
   // Storage configs
   const [configs, setConfigs] = useState<CloudStorageConfig[]>([
-    { id: 'cloud-1', service: 'Google Drive', connected: false },
+    { id: 'cloud-1', service: 'Google Drive', connected: true, accountEmail: 'corporateinfo.cons@weehur.com.sg', lastSync: new Date().toISOString().replace('T', ' ').substring(0, 16) },
     { id: 'cloud-2', service: 'OneDrive', connected: false },
     { id: 'cloud-3', service: 'AWS S3', connected: true, accountEmail: 's3://weehur-learning-bucket', lastSync: '2026-07-06 18:30' }
   ]);

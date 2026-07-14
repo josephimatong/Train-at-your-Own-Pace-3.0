@@ -66,7 +66,9 @@ import {
   getLeaderboardFromFirestore,
   saveNotificationToFirestore,
   getUserNotificationsFromFirestore,
-  saveUserToFirestore
+  saveUserToFirestore,
+  getProjectSitesFromFirestore,
+  getWeeHurRolesFromFirestore
 } from './lib/firebaseSync';
 import { TRAINING_CATALOG, TrackData } from './categoryData';
 
@@ -233,6 +235,25 @@ export default function App() {
   const [profilePassword, setProfilePassword] = useState('');
   const [profileConfirmPassword, setProfileConfirmPassword] = useState('');
   const [profileIsSubmitting, setProfileIsSubmitting] = useState(false);
+
+  // Dynamic Options
+  const [projectSites, setProjectSites] = useState<string[]>([
+    'Woodlands BTO Project',
+    'Punggol PPVC Site',
+    'Kovan Residential',
+    'Geylang Warehouse',
+    'Changi Site B',
+    'Wee Hur HQ Office'
+  ]);
+  const [weeHurRoles, setWeeHurRoles] = useState<string[]>([
+    'Site Engineer',
+    'Safety Coordinator',
+    'Project Manager',
+    'Tower Crane Operator',
+    'General Worker',
+    'Safety Assistant',
+    'Structural Supervisor'
+  ]);
 
   const handleOpenProfileSettings = () => {
     if (!driveUser) {
@@ -460,6 +481,19 @@ export default function App() {
       }
     } catch (err) {
       console.warn('Failed to load notifications from Firestore, keeping local notifications:', err);
+    }
+
+    try {
+      const sites = await getProjectSitesFromFirestore();
+      if (sites && sites.length > 0) {
+        setProjectSites(sites);
+      }
+      const roles = await getWeeHurRolesFromFirestore();
+      if (roles && roles.length > 0) {
+        setWeeHurRoles(roles);
+      }
+    } catch (err) {
+      console.warn('Failed to load project sites and roles:', err);
     }
 
     triggerToast('Profile load completed.', 'success');
@@ -1703,14 +1737,7 @@ export default function App() {
                   onChange={(e) => setProfileProject(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
                 >
-                  {[
-                    'Woodlands BTO Project',
-                    'Punggol PPVC Site',
-                    'Kovan Residential',
-                    'Geylang Warehouse',
-                    'Changi Site B',
-                    'Wee Hur HQ Office'
-                  ].map(site => (
+                  {projectSites.map(site => (
                     <option key={site} value={site}>{site}</option>
                   ))}
                 </select>
@@ -1726,17 +1753,7 @@ export default function App() {
                   onChange={(e) => setProfileWeeHurRole(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
                 >
-                  {[
-                    'Safety Coordinator',
-                    'Site Engineer',
-                    'Tower Crane Operator',
-                    'Structural Supervisor',
-                    'Safety Assistant',
-                    'WSHO Officer',
-                    'Site Supervisor',
-                    'Project Manager',
-                    'Managing Director'
-                  ].map(role => (
+                  {weeHurRoles.map(role => (
                     <option key={role} value={role}>{role}</option>
                   ))}
                 </select>

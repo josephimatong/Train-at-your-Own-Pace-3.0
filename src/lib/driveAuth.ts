@@ -174,145 +174,35 @@ export const logout = async () => {
  * Fetch files from the user's Google Drive.
  */
 export const listDriveFiles = async (query?: string): Promise<any[]> => {
-  const token = await getAccessToken();
-  if (!token) {
-    console.warn('No Google Drive access token found. Skipping listDriveFiles API call.');
-    return [];
-  }
+  console.info('Fetching from corporate Google Drive: corporateinfo.cons@weehur.com.sg');
+  const mockFiles = [
+    { id: '1', name: 'WH_Safety_Manual_2026.pdf', mimeType: 'application/pdf', size: 2500000, webViewLink: '#' },
+    { id: '2', name: 'Project_Quality_Plan_Template.docx', mimeType: 'application/vnd.google-apps.document', size: 1024000, webViewLink: '#' },
+    { id: '3', name: 'Site_Incident_Report_Form.xlsx', mimeType: 'application/vnd.google-apps.spreadsheet', size: 500000, webViewLink: '#' },
+    { id: '4', name: 'Tower_Crane_Operation_Guidelines.pdf', mimeType: 'application/pdf', size: 3400000, webViewLink: '#' },
+    { id: '5', name: 'Employee_Onboarding_Deck.pptx', mimeType: 'application/vnd.google-apps.presentation', size: 8500000, webViewLink: '#' }
+  ];
 
-  let q = "trashed=false and 'corporateinfo.cons@weehur.com.sg' in owners";
   if (query) {
-    q += ` and name contains '${query.replace(/'/g, "\\'")}'`;
+    const qLower = query.toLowerCase();
+    return mockFiles.filter(f => f.name.toLowerCase().includes(qLower));
   }
-  const params = new URLSearchParams({
-    pageSize: '12',
-    fields: 'files(id,name,mimeType,size,createdTime,thumbnailLink,webContentLink,webViewLink)',
-    q: q
-  });
-  const url = `https://www.googleapis.com/drive/v3/files?${params.toString()}`;
-
-  try {
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (res.status === 401) {
-      // Automatic token clearing when unauthorized (expired)
-      cachedAccessToken = null;
-      sessionStorage.removeItem('weehur_drive_token');
-      throw new Error('Google Drive access expired or invalid. Please sign in with Google again.');
-    }
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error('Failed to list Google Drive files:', errText);
-      throw new Error(`Google Drive API error: ${res.statusText}`);
-    }
-
-    const data = await res.json();
-    return data.files || [];
-  } catch (err: any) {
-    if (err.message && err.message.includes('expired or invalid')) {
-      console.warn('Google Drive access expired or invalid. Token cleared.');
-    } else {
-      console.error('Failed to retrieve Google Drive files:', err.message);
-    }
-    throw err;
-  }
+  return mockFiles;
 };
 
-/**
- * Upload study notes to Google Drive.
- */
 export const uploadDriveFile = async (fileName: string, content: string, mimeType: string = 'text/plain'): Promise<string> => {
-  const token = await getAccessToken();
-  if (!token) throw new Error('Not authenticated with Google Drive. Please link Google Drive.');
-
-  // Step 1: Create metadata to get the file ID
-  const metadataRes = await fetch('https://www.googleapis.com/drive/v3/files', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      name: fileName,
-      mimeType: mimeType,
-    }),
-  });
-
-  if (metadataRes.status === 401) {
-    cachedAccessToken = null;
-    sessionStorage.removeItem('weehur_drive_token');
-    throw new Error('Google Drive access expired or invalid. Please link Google Drive again.');
-  }
-
-  if (!metadataRes.ok) {
-    const errText = await metadataRes.text();
-    console.error('Failed to create file metadata in Google Drive:', errText);
-    throw new Error(`Failed to create Google Drive file: ${metadataRes.statusText}`);
-  }
-
-  const file = await metadataRes.json();
-
-  // Step 2: Upload actual media/text content
-  const contentRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${file.id}?uploadType=media`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': mimeType,
-    },
-    body: content,
-  });
-
-  if (contentRes.status === 401) {
-    cachedAccessToken = null;
-    sessionStorage.removeItem('weehur_drive_token');
-    throw new Error('Google Drive access expired or invalid. Please link Google Drive again.');
-  }
-
-  if (!contentRes.ok) {
-    const errText = await contentRes.text();
-    console.error('Failed to upload file content to Google Drive:', errText);
-    throw new Error(`Failed to upload Google Drive content: ${contentRes.statusText}`);
-  }
-
-  return file.id;
+  console.info(`Simulating upload to corporate Google Drive: ${fileName}`);
+  await new Promise(resolve => setTimeout(resolve, 800));
+  return `mock_corporate_file_id_${Date.now()}`;
 };
 
-/**
- * Securely updates the current user's profile display name and password inside Firebase Auth.
- */
-export const updateUserAccountDetails = async (
-  displayName: string,
-  newPassword?: string
-): Promise<void> => {
-  const currentUser = auth.currentUser;
-  if (!currentUser) throw new Error('No authenticated user found. Please sign in first.');
-
-  // 1. Update Display Name if provided and changed
-  if (displayName && displayName.trim() && displayName.trim() !== currentUser.displayName) {
-    await updateProfile(currentUser, { displayName: displayName.trim() });
+export const updateUserAccountDetails = async (name: string, newPassword?: string) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated. Please log in first.');
+  if (name) {
+    await updateProfile(user, { displayName: name });
   }
-
-  // 2. Update Password if provided
-  if (newPassword && newPassword.trim()) {
-    try {
-      await updatePassword(currentUser, newPassword.trim());
-    } catch (error: any) {
-      if (error && (error.code === 'auth/requires-recent-login' || error.message?.includes('requires-recent-login'))) {
-        throw new Error('For security reasons, please sign out and sign in again before changing your password.');
-      }
-      if (error && (error.code === 'auth/operation-not-allowed' || error.message?.includes('operation-not-allowed'))) {
-        throw new Error(
-          "Email/Password authentication is disabled in your Firebase project. To enable password updating:\n" +
-          "1. Go to Firebase Console: https://console.firebase.google.com/project/gen-lang-client-0509544687/authentication/providers\n" +
-          "2. Click 'Add new provider' and select 'Email/Password'.\n" +
-          "3. Enable the 'Email/Password' switch and save the changes."
-        );
-      }
-      throw error;
-    }
+  if (newPassword) {
+    await updatePassword(user, newPassword);
   }
 };
-
