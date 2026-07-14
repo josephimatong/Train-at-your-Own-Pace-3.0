@@ -1528,6 +1528,7 @@ export default function App() {
                       quiz={activeQuiz}
                       tutorial={activeTutorial}
                       currentLanguage={currentLanguage}
+                      userName={driveUser?.displayName || driveUser?.email?.split('@')[0] || "Trainee"}
                       onPassQuiz={handlePassQuiz}
                       onClose={() => setTakingQuiz(false)}
                       onQuizProgressUpdate={handleUpdateQuizProgress}

@@ -125,13 +125,15 @@ export const SafetyChatbot: React.FC<SafetyChatbotProps> = ({ currentLanguage, c
     setIsLoading(true);
 
     try {
+      const driveToken = sessionStorage.getItem('weehur_drive_token') || undefined;
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: newMessages,
           userRole: currentRole,
-          currentLanguage
+          currentLanguage,
+          driveToken
         })
       });
 

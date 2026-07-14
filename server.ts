@@ -8,6 +8,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
+import { google } from 'googleapis';
 
 // Load environment variables
 dotenv.config();
@@ -48,17 +49,64 @@ async function startServer() {
   // 1. Gemini Safety Chatbot Proxy (Multi-turn chat)
   app.post('/api/chat', async (req, res) => {
     try {
-      const { messages, userRole, currentLanguage } = req.body;
+      const { messages, userRole, currentLanguage, driveToken } = req.body;
       
       if (!messages || !Array.isArray(messages)) {
         res.status(400).json({ error: 'Invalid or missing messages array in request body.' });
         return;
       }
 
+      let driveContext = '';
+      if (driveToken) {
+        try {
+          const authClient = new google.auth.OAuth2();
+          authClient.setCredentials({ access_token: driveToken });
+          const drive = google.drive({ version: 'v3', auth: authClient });
+
+          const latestUserMessage = messages.filter(m => m.role === 'user').pop()?.content || '';
+          
+          if (latestUserMessage.length > 2) {
+             const searchResponse = await drive.files.list({
+                q: "mimeType='text/plain' or mimeType='application/vnd.google-apps.document'",
+                pageSize: 3,
+                fields: 'files(id, name, mimeType)',
+                orderBy: 'modifiedTime desc'
+             });
+
+             const files = searchResponse.data.files || [];
+             for (const file of files) {
+                try {
+                   let content = '';
+                   if (file.mimeType === 'application/vnd.google-apps.document') {
+                       const exportRes = await drive.files.export({
+                           fileId: file.id!,
+                           mimeType: 'text/plain'
+                       });
+                       content = exportRes.data as string;
+                   } else if (file.mimeType === 'text/plain') {
+                       const getRes = await drive.files.get({
+                           fileId: file.id!,
+                           alt: 'media'
+                       });
+                       content = getRes.data as string;
+                   }
+                   if (content) {
+                       driveContext += `\\n--- Document Name: ${file.name} ---\\n${content.substring(0, 3000)}\\n`;
+                   }
+                } catch (e) {
+                   console.error(`Error reading file ${file.name}:`, e);
+                }
+             }
+          }
+        } catch (e) {
+          console.error('Drive context error:', e);
+        }
+      }
+
       const ai = getAiClient();
 
       // System instruction for the assistant
-      const systemInstruction = `
+      let systemInstruction = `
 You are "WH Friendly Assistant", a highly positive, supportive, and friendly chatbot guide for the Wee Hur Training Hub application and Wee Hur Construction Pte Ltd, Singapore.
 Your primary roles are:
 1. Guide the user on how to use the applications (e.g. how to view tutorials, take interactive quizzes, request AI hints, write collaborative study notes, check the compliance leaderboard, view site certifications/badges, and sync their local progress with the cloud).
@@ -69,6 +117,9 @@ You are fluent in English, Chinese (中文), Malay (Melayu), and Tamil (தம�
 Keep your answers highly practical, energetic, warm, structured (using clean markdown bullet points), and easy to understand for workers and site staff alike.
 The user is logged in as a simulated role: "${userRole || 'employee'}" and language: "${currentLanguage || 'en'}". Give them welcoming, supportive, and uplifting advice!
 `;
+      if (driveContext) {
+        systemInstruction += `\n\nCRITICAL: Base your technical, safety, HR, and operational responses strictly on the verified documents, manuals, and data found within the connected Google Drive repository provided below:\n${driveContext}\n`;
+      }
 
       // Map client-side messages structure to Gemini content format
       // Expected input: messages = [ { role: 'user' | 'model', content: string } ]

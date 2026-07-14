@@ -12,6 +12,7 @@ interface QuizSectionProps {
   quiz: Quiz | undefined;
   tutorial: VideoTutorial;
   currentLanguage: Language;
+  userName?: string;
   onPassQuiz: (score: number) => void;
   onClose: () => void;
   onQuizProgressUpdate?: (tutorialId: string, currentQuestionIdx: number, totalQuestions: number, isFinished: boolean) => void;
@@ -21,6 +22,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
   quiz,
   tutorial,
   currentLanguage,
+  userName = "Trainee",
   onPassQuiz,
   onClose,
   onQuizProgressUpdate,
@@ -378,7 +380,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
                 <div className="space-y-4 text-center">
                   <span className="text-xs italic font-medium text-slate-500 block">This certifies that</span>
                   <h3 className="text-xl sm:text-2xl font-serif font-black text-slate-950 border-b border-slate-200 pb-1 inline-block px-4">
-                    Joseph Imatong
+                    {userName}
                   </h3>
                   <span className="text-xs text-slate-500 block">has successfully completed the self-paced professional module</span>
                   <h4 className="text-base sm:text-lg font-bold text-slate-900 px-6 font-sans">
