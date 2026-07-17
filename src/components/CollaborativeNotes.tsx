@@ -61,7 +61,7 @@ export const CollaborativeNotes: React.FC<CollaborativeNotesProps> = ({
       const simulateEditing = setTimeout(() => {
         setUserTypingIndicator('Siti Aminah is typing...');
         
-        let addedText = '\n\n--- Real-Time Edit by Siti Aminah ---\n⚠️ Reminder: Always inspect the double-lanyard lock pins before stepping onto the cantilever scaffold beams. Keep your safety anchor high!';
+        const addedText = '\n\n--- Real-Time Edit by Siti Aminah ---\n⚠️ Reminder: Always inspect the double-lanyard lock pins before stepping onto the cantilever scaffold beams. Keep your safety anchor high!';
         let currentIdx = 0;
         
         typeTimerRef.current = setInterval(() => {

@@ -2,6 +2,8 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
+import Markdown from "react-markdown";
+
 
 import React, { useState } from 'react';
 import { 
@@ -37,6 +39,54 @@ interface ManagerAnalyticsProps {
 }
 
 export const ManagerAnalytics: React.FC<ManagerAnalyticsProps> = ({ currentLanguage, tutorials }) => {
+  const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
+
+  const [aiInsights, setAiInsights] = useState<string | null>(null);
+
+
+
+  const handleGenerateInsights = async () => {
+
+    setIsGeneratingInsights(true);
+
+    setAiInsights(null);
+
+    try {
+
+      const res = await fetch("/api/ai/analytics-insights", {
+
+        method: "POST",
+
+        headers: { "Content-Type": "application/json" },
+
+        body: JSON.stringify({ statsData: categoryStats, currentLanguage }),
+
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+
+        setAiInsights(data.text);
+
+      } else {
+
+        setAiInsights("Failed to load insights. " + (data.error || ""));
+
+      }
+
+    } catch (err) {
+
+      setAiInsights("Network error while generating insights.");
+
+    } finally {
+
+      setIsGeneratingInsights(false);
+
+    }
+
+  };
+
   const t = TRANSLATIONS[currentLanguage];
   
   // Calculate category usage and popularity dynamically from tutorials list
@@ -121,6 +171,80 @@ export const ManagerAnalytics: React.FC<ManagerAnalyticsProps> = ({ currentLangu
   return (
     <div className="space-y-6">
       
+      {/* AI Executive Briefing */}
+
+      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-xl shadow-md p-6 relative overflow-hidden">
+
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+
+          <Sparkles className="w-24 h-24 text-cyan-400" />
+
+        </div>
+
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
+
+          <div className="flex-1 space-y-4">
+
+            <div className="flex items-center gap-3">
+
+              <div className="p-2 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-lg text-white shadow-lg shadow-cyan-500/20">
+
+                <Sparkles className="w-5 h-5" />
+
+              </div>
+
+              <h3 className="text-lg font-black text-slate-100 tracking-wide">AI Executive Briefing</h3>
+
+            </div>
+
+            <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
+
+              Use Wee Hur AI to analyze the current training data across all sites. Get instant, data-driven recommendations to improve compliance and site safety.
+
+            </p>
+
+            {aiInsights && (
+
+              <div className="mt-4 p-5 bg-slate-950/80 border border-slate-800/80 rounded-xl shadow-inner prose prose-invert prose-sm max-w-none prose-headings:text-cyan-400 prose-a:text-blue-400">
+
+                <Markdown>{aiInsights}</Markdown>
+
+              </div>
+
+            )}
+
+          </div>
+
+          <div className="shrink-0 flex items-center justify-center">
+
+            <button
+
+              onClick={handleGenerateInsights}
+
+              disabled={isGeneratingInsights}
+
+              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 border border-slate-700 text-cyan-400 font-bold rounded-lg shadow-lg flex items-center gap-2 transition-all"
+
+            >
+
+              {isGeneratingInsights ? (
+
+                <><RefreshCw className="w-4 h-4 animate-spin" /> Analyzing Data...</>
+
+              ) : (
+
+                <><Sparkles className="w-4 h-4" /> Generate AI Insights</>
+
+              )}
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
       {/* High Level KPI Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         

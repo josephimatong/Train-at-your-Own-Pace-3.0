@@ -53,21 +53,20 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     
     setVideoProgress(initialProgress);
 
-    if (videoRef.current) {
-      videoRef.current.load();
+    const videoElement = videoRef.current;
+    if (videoElement) {
+      videoElement.load();
       
       const handleLoadedMetadata = () => {
-        if (videoRef.current && initialProgress > 0 && initialProgress < 99) {
-          const duration = videoRef.current.duration || 1;
-          videoRef.current.currentTime = (initialProgress / 100) * duration;
+        if (videoElement && initialProgress > 0 && initialProgress < 99) {
+          const duration = videoElement.duration || 1;
+          videoElement.currentTime = (initialProgress / 100) * duration;
         }
       };
       
-      videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
+      videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
       return () => {
-        if (videoRef.current) {
-          videoRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        }
+        videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
       };
     }
   }, [tutorial.id]);
@@ -91,7 +90,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const current = videoRef.current.currentTime;
-    const duration = videoRef.current.duration || 1;
+    const duration = videoElement.duration || 1;
     const progress = (current / duration) * 100;
     setVideoProgress(progress);
     if (onVideoProgressUpdate) {

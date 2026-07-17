@@ -410,6 +410,28 @@ export const UserManagement: React.FC<UserManagementProps> = ({
     }
   };
 
+  const handleUpdateUserRole = async (user: any, newRole: UserRole) => {
+    if (!confirm(`Are you sure you want to change the system access role of ${user.name} to ${getRoleLabel(newRole)}?`)) return;
+    try {
+      await saveUserToFirestore({
+        uid: user.uid,
+        email: user.email,
+        displayName: user.name,
+        role: newRole,
+        project: user.site,
+        weeHurRole: user.role,
+        xp: user.xp,
+        completions: user.completions,
+        badges: user.badges
+      });
+      triggerToast(`Successfully updated ${user.name}'s role to ${getRoleLabel(newRole)}.`, 'success');
+      await onRefreshUsers();
+    } catch (err) {
+      console.error('Failed to update role:', err);
+      triggerToast('Failed to update user role.', 'warning');
+    }
+  };
+
   const handleDelete = async (uid: string, name: string) => {
     if (confirm(`Are you sure you want to delete user "${name}" from the system?`)) {
       try {
@@ -672,9 +694,24 @@ export const UserManagement: React.FC<UserManagementProps> = ({
 
                     {/* Access level (Rights) */}
                     <td className="px-5 py-4">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono ${getRoleBadgeColor(accessLevel)}`}>
-                        {getRoleLabel(accessLevel)}
-                      </span>
+                      {((currentRole === UserRole.SUPER_ADMIN || currentRole === UserRole.ADMIN) && !isUserSelf) ? (
+                        <select
+                          value={accessLevel}
+                          onChange={(e) => handleUpdateUserRole(user, e.target.value as UserRole)}
+                          className={`text-[10px] font-bold px-2 py-1 rounded-md font-mono cursor-pointer outline-none bg-slate-900 ${getRoleBadgeColor(accessLevel)}`}
+                        >
+                          <option value={UserRole.EMPLOYEE} className="bg-slate-900 text-slate-200">{getRoleLabel(UserRole.EMPLOYEE)}</option>
+                          <option value={UserRole.MANAGER} className="bg-slate-900 text-slate-200">{getRoleLabel(UserRole.MANAGER)}</option>
+                          <option value={UserRole.ADMIN} className="bg-slate-900 text-slate-200">{getRoleLabel(UserRole.ADMIN)}</option>
+                          {currentRole === UserRole.SUPER_ADMIN && (
+                            <option value={UserRole.SUPER_ADMIN} className="bg-slate-900 text-slate-200">{getRoleLabel(UserRole.SUPER_ADMIN)}</option>
+                          )}
+                        </select>
+                      ) : (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-mono ${getRoleBadgeColor(accessLevel)}`}>
+                          {getRoleLabel(accessLevel)}
+                        </span>
+                      )}
                     </td>
 
                     {/* Training Progress (XP / completions) */}

@@ -396,7 +396,7 @@ export const AdminUpload: React.FC<AdminUploadProps> = ({
       return;
     }
 
-    let finalQuestions = [...questions];
+    const finalQuestions = [...questions];
 
     // Auto-add question if user typed one but forgot to click the "Add Question" button
     if (currentQuestion.trim() && options.every(opt => opt.trim())) {
