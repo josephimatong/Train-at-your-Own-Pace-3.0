@@ -63,7 +63,7 @@ import {
   getAllStudyNotesFromFirestore,
   saveCompletionToFirestore,
   getUserCompletionsFromFirestore,
-  getLeaderboardFromFirestore,
+  getLeaderboardFromFirestore, subscribeToLeaderboard,
   saveNotificationToFirestore,
   getUserNotificationsFromFirestore,
   saveUserToFirestore,
@@ -122,6 +122,8 @@ export default function App() {
     }
   });
 
+
+  
   // Save leaderboard whenever it changes
   useEffect(() => {
     localStorage.setItem('weehur_leaderboard', JSON.stringify(leaderboard));
@@ -327,6 +329,43 @@ export default function App() {
   const [driveUser, setDriveUser] = useState<any>(null);
 
   useEffect(() => {
+    if (!driveUser) return;
+    
+    const unsubscribe = subscribeToLeaderboard((dbLeaderboard) => {
+      if (dbLeaderboard && dbLeaderboard.length > 0) {
+        const merged = dbLeaderboard.map(entry => ({
+          ...entry,
+          isCurrentUser: entry.uid === driveUser.uid
+        }));
+        
+        const hasCurrentUser = merged.some(m => m.isCurrentUser);
+        if (!hasCurrentUser) {
+          merged.push({
+            name: driveUser.displayName || driveUser.email?.split('@')[0] || 'Learning Officer',
+            email: driveUser.email || 'officer@weehur.com.sg',
+            xp: 0,
+            completions: 0,
+            badges: [],
+            isCurrentUser: true,
+            uid: driveUser.uid,
+            role: 'Structural Supervisor',
+            site: 'Kovan Residential',
+            accessibilityRole: driveUser.email === 'josephimatong@weehur.com.sg' ? 'super_admin' : 'employee'
+          });
+        }
+        
+        const sorted = merged
+          .sort((a, b) => b.xp - a.xp)
+          .map((item, index) => ({ ...item, rank: index + 1 }));
+        setLeaderboard(sorted);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [driveUser]);
+
+
+  useEffect(() => {
     const unsubscribe = initAuth(
       (user, token) => {
         setDriveUser(user);
@@ -427,40 +466,7 @@ export default function App() {
       console.warn('Failed to load completions from Firestore, keeping cached completions:', err);
     }
 
-    // 4. Load general leaderboard
-    try {
-      const dbLeaderboard = await getLeaderboardFromFirestore();
-      if (dbLeaderboard && dbLeaderboard.length > 0) {
-        const merged = dbLeaderboard.map(entry => ({
-          ...entry,
-          isCurrentUser: entry.uid === user.uid
-        }));
-        
-        const hasCurrentUser = merged.some(m => m.isCurrentUser);
-        if (!hasCurrentUser) {
-          merged.push({
-            name: user.displayName || user.email?.split('@')[0] || 'Learning Officer',
-            email: user.email || 'officer@weehur.com.sg',
-            xp: currentXp,
-            completions: currentCompletions,
-            badges: currentBadges,
-            isCurrentUser: true,
-            uid: user.uid,
-            role: profile?.weeHurRole || 'Structural Supervisor',
-            site: profile?.project || 'Kovan Residential',
-            accessibilityRole: profile?.role || (user.email === 'josephimatong@weehur.com.sg' ? 'super_admin' : 'employee')
-          });
-        }
-
-        const sorted = merged
-          .sort((a, b) => b.xp - a.xp)
-          .map((item, index) => ({ ...item, rank: index + 1 }));
-        setLeaderboard(sorted);
-      }
-    } catch (err) {
-      console.warn('Failed to load leaderboard from Firestore, keeping local leaderboard:', err);
-    }
-
+    // 4. Load general leaderboard (Handled by realtime listener)
     // 5. Load notifications
     try {
       const dbNotifications = await getUserNotificationsFromFirestore(user.uid);
@@ -471,7 +477,7 @@ export default function App() {
           message: n.message,
           time: n.time,
           read: n.read,
-          type: n.type as 'achievement' | 'alert' | 'system'
+          type: n.type as 'deadline' | 'achievement' | 'sync' | 'alert'
         }));
         setNotifications(prev => {
           const existingIds = new Set(prev.map(p => p.id));
@@ -500,54 +506,9 @@ export default function App() {
   };
 
   const refreshUsersList = async () => {
-    try {
-      const dbLeaderboard = await getLeaderboardFromFirestore();
-      if (dbLeaderboard && dbLeaderboard.length > 0) {
-        const merged = dbLeaderboard.map(entry => ({
-          ...entry,
-          isCurrentUser: driveUser ? entry.uid === driveUser.uid : false
-        }));
-
-        if (driveUser) {
-          const hasCurrentUser = merged.some(m => m.isCurrentUser);
-          if (!hasCurrentUser) {
-            const profile = await getUserProfile(driveUser.uid);
-            merged.push({
-              name: driveUser.displayName || driveUser.email?.split('@')[0] || 'Learning Officer',
-              email: driveUser.email || 'officer@weehur.com.sg',
-              xp: profile?.xp || 0,
-              completions: profile?.completions || 0,
-              badges: profile?.badges || [],
-              isCurrentUser: true,
-              uid: driveUser.uid,
-              role: profile?.weeHurRole || 'Structural Supervisor',
-              site: profile?.project || 'Kovan Residential',
-              accessibilityRole: profile?.role || (driveUser.email === 'josephimatong@weehur.com.sg' ? 'super_admin' : 'employee')
-            });
-          }
-        }
-
-        const sorted = merged
-          .sort((a, b) => b.xp - a.xp)
-          .map((item, index) => ({ ...item, rank: index + 1 }));
-        setLeaderboard(sorted);
-      }
-    } catch (error) {
-      const errStr = error instanceof Error ? error.message : String(error);
-      if (errStr.toLowerCase().includes('offline')) {
-        console.warn('Running offline: skipping user list refresh.');
-      } else {
-        console.error('Failed to refresh users list:', error);
-      }
-    }
+    // Leaderboard is realtime, no need to manually refresh leaderboard here
+    triggerToast('Users refreshed!', 'success');
   };
-
-  useEffect(() => {
-    if (driveUser) {
-      loadFirestoreData(driveUser);
-    }
-  }, [driveUser]);
-
   const handleDriveLogin = async () => {
     try {
       const result = await googleSignIn();

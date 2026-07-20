@@ -28,7 +28,8 @@ import {
   RefreshCw, 
   AlertTriangle,
   Download,
-  Award
+  Award,
+  Sparkles,
 } from 'lucide-react';
 import { SITE_ANALYTICS, COMPLETION_TRENDS } from '../data';
 import { Language, TRANSLATIONS, SyncLogEntry, VideoTutorial } from '../types';

@@ -6,7 +6,7 @@
 import { 
   doc, 
   setDoc, 
-  getDoc, 
+  getDoc, onSnapshot, 
   getDocs, 
   collection, 
   query, 
@@ -362,3 +362,28 @@ export async function getWeeHurRolesFromFirestore() {
   }
 }
 
+
+export function subscribeToLeaderboard(callback: (entries: any[]) => void) {
+  const usersColl = collection(db, 'users');
+  const unsubscribe = onSnapshot(usersColl, (qSnap) => {
+    const entries: any[] = [];
+    qSnap.forEach((docSnap) => {
+      const data = docSnap.data();
+      entries.push({
+        name: data.displayName || data.email?.split('@')[0] || 'Learning Officer',
+        email: data.email || 'officer@weehur.com.sg',
+        xp: data.xp || 0,
+        completions: data.completions || 0,
+        badges: data.badges || [],
+        uid: data.uid,
+        role: data.weeHurRole || 'Structural Supervisor',
+        site: data.project || 'Kovan Residential',
+        accessibilityRole: data.role || 'employee'
+      });
+    });
+    callback(entries);
+  }, (error) => {
+    console.error("Leaderboard subscription error:", error);
+  });
+  return unsubscribe;
+}

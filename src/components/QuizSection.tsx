@@ -44,6 +44,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
     if (quiz && quiz.questions && quiz.questions.length > 0 && onQuizProgressUpdate) {
       onQuizProgressUpdate(tutorial.id, currentQuestionIdx, quiz.questions.length, quizFinished);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestionIdx, quizFinished, tutorial.id, quiz?.questions?.length, onQuizProgressUpdate]);
 
   if (!quiz || !quiz.questions || quiz.questions.length === 0) {

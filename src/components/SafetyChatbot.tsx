@@ -113,6 +113,7 @@ export const SafetyChatbot: React.FC<SafetyChatbotProps> = ({ currentLanguage, c
         }
       ]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLanguage]);
 
   const handleSend = async (textToSend: string) => {

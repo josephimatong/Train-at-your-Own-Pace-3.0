@@ -86,6 +86,7 @@ export const CollaborativeNotes: React.FC<CollaborativeNotesProps> = ({
         if (typeTimerRef.current) clearInterval(typeTimerRef.current);
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorialId, isOffline]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

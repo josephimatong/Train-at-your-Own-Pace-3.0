@@ -92,6 +92,7 @@ export const CloudStorageSync: React.FC<CloudStorageSyncProps> = ({
     } else {
       setDriveFiles([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driveUser, studyNotes, tutorials]);
 
   // Handle selected tutorial change for note export filename
@@ -102,7 +103,7 @@ export const CloudStorageSync: React.FC<CloudStorageSyncProps> = ({
         setExportFileName(`${tut.title.replace(/[^a-zA-Z0-9]/g, '_')}_Notes.txt`);
       }
     }
-  }, [selectedTutorialId]);
+  }, [selectedTutorialId, tutorials]);
 
   const fetchFiles = async (query?: string) => {
     if (!driveUser) return;

@@ -57,6 +57,9 @@ export interface LeaderboardEntry {
   badges: string[];
   completions: number;
   isCurrentUser?: boolean;
+  email?: string;
+  uid?: string;
+  accessibilityRole?: string;
 }
 
 export interface SyncLogEntry {

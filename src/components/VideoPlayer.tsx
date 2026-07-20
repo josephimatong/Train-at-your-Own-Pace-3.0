@@ -59,7 +59,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       
       const handleLoadedMetadata = () => {
         if (videoElement && initialProgress > 0 && initialProgress < 99) {
-          const duration = videoElement.duration || 1;
+          const duration = videoRef.current.duration || 1;
           videoElement.currentTime = (initialProgress / 100) * duration;
         }
       };
@@ -87,14 +87,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     setPlaybackRate(rate);
   };
 
+    const lastUpdateRef = React.useRef<number>(0);
+  
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const current = videoRef.current.currentTime;
-    const duration = videoElement.duration || 1;
+    const duration = videoRef.current.duration || 1;
     const progress = (current / duration) * 100;
     setVideoProgress(progress);
-    if (onVideoProgressUpdate) {
-      onVideoProgressUpdate(progress);
+    
+    const now = Date.now();
+    if (now - lastUpdateRef.current > 2000) {
+      lastUpdateRef.current = now;
+      if (onVideoProgressUpdate) {
+        onVideoProgressUpdate(progress);
+      }
     }
   };
 
