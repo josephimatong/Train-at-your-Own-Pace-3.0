@@ -373,7 +373,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
           triggerToast(`Invitation email with direct link sent to ${formEmail}!`, 'success');
         } catch (emailErr: any) {
           console.error('Failed to send invitation email:', emailErr);
-          triggerToast('User created, but email invite could not be sent. Please link your Google Account.', 'warning');
+          triggerToast('User created, but email could not be sent. Please Log Out and Log In again to grant Gmail permissions.', 'warning');
         }
       }
       
@@ -640,6 +640,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                 <th className="px-5 py-4">Wee Hur Job Role</th>
                 <th className="px-5 py-4">Project Placement</th>
                 <th className="px-5 py-4">Accessibility Rights</th>
+                <th className="px-5 py-4">Invitation</th>
+                <th className="px-5 py-4">Last Active</th>
                 <th className="px-5 py-4">Training Stats</th>
                 <th className="px-5 py-4 text-right">Actions</th>
               </tr>
@@ -648,6 +650,36 @@ export const UserManagement: React.FC<UserManagementProps> = ({
               {filteredUsers.map((user, idx) => {
                 const isUserSelf = user.email === currentUserEmail;
                 const accessLevel = user.accessibilityRole || 'employee';
+                
+                const isInviteAccepted = user.inviteAccepted || isUserSelf || (user.xp && user.xp > 0);
+                const lastActiveStr = user.lastActiveAt;
+                
+                let statusLabel = 'Pending Invite';
+                let statusColor = 'text-slate-400 bg-slate-500/10 border-slate-500/20';
+                
+                if (isInviteAccepted) {
+                   if (lastActiveStr) {
+                      const lastActive = new Date(lastActiveStr);
+                      const daysIdle = Math.floor((new Date().getTime() - lastActive.getTime()) / (1000 * 3600 * 24));
+                      
+                      if (daysIdle < 1) {
+                         statusLabel = 'Active Today';
+                         statusColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+                      } else {
+                         statusLabel = `Idle (${daysIdle}d)`;
+                         if (daysIdle > 30) {
+                            statusColor = 'text-red-400 bg-red-500/10 border-red-500/20';
+                         } else if (daysIdle > 7) {
+                            statusColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+                         } else {
+                            statusColor = 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20';
+                         }
+                      }
+                   } else {
+                      statusLabel = 'Active (Legacy)';
+                      statusColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+                   }
+                }
 
                 return (
                   <tr 
@@ -714,6 +746,25 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                       )}
                     </td>
 
+                    {/* Invitation Status */}
+                    <td className="px-5 py-4">
+                      <span className={`inline-flex items-center justify-center px-2 py-1 rounded border text-[10px] font-bold font-mono tracking-wide ${isInviteAccepted ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-amber-400 bg-amber-500/10 border-amber-500/20'}`}>
+                        {isInviteAccepted ? 'Accepted' : 'Pending'}
+                      </span>
+                    </td>
+                    
+                    {/* Last Active */}
+                    <td className="px-5 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-bold text-slate-300">
+                          {lastActiveStr ? new Date(lastActiveStr).toLocaleDateString() : 'N/A'}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500">
+                          {isInviteAccepted ? (lastActiveStr ? `${Math.floor((new Date().getTime() - new Date(lastActiveStr).getTime()) / (1000 * 3600 * 24))} days ago` : 'Legacy User') : '-'}
+                        </span>
+                      </div>
+                    </td>
+                    
                     {/* Training Progress (XP / completions) */}
                     <td className="px-5 py-4">
                       <div className="space-y-0.5 font-mono text-[10px]">
