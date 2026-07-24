@@ -94,12 +94,12 @@ async function startServer() {
                        driveContext += `\\n--- Document Name: ${file.name} ---\\n${content.substring(0, 3000)}\\n`;
                    }
                 } catch (e) {
-                   console.error(`Error reading file ${file.name}:`, e);
+                   console.error(`Error reading file ${file.name}:`, e.message || 'Unknown error');
                 }
              }
           }
         } catch (e) {
-          console.error('Drive context error:', e);
+          console.warn('Drive context unavailable:', e.message || 'Invalid or expired token');
         }
       }
 
